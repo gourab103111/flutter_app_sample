@@ -29,6 +29,7 @@ class _FileReadwriteState extends State<FileReadwrite> {
   Permission permission;
   String _tempPath    ='';
   String  _appDocPath ='';
+  String  _external ='';
 
 
 
@@ -47,6 +48,10 @@ class _FileReadwriteState extends State<FileReadwrite> {
 
     Directory appDocDir = await getApplicationDocumentsDirectory();
     _appDocPath = appDocDir.path;
+
+    final externalDirectory = await getExternalStorageDirectory();
+
+    _external = externalDirectory.path;
 
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
@@ -157,6 +162,15 @@ class _FileReadwriteState extends State<FileReadwrite> {
                       print(_tempPath);
 
 
+
+
+                      Navigator.pushNamed(context, '/VideoPlayerSample',arguments: ScreenArguments(
+                        _external+'/vid2.mp4',
+                        'B1',
+                      ));
+
+                      /*
+
                       HttpClient client = new HttpClient();
                       client.getUrl(Uri.parse("https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4"))
                           .then((HttpClientRequest request) {
@@ -165,14 +179,16 @@ class _FileReadwriteState extends State<FileReadwrite> {
                           .then((HttpClientResponse response) {
 
                         print("Video File Downloaded ");
-                        response.pipe(new File(_tempPath+'/butterfly.mp4').openWrite());
+                        response.pipe(new File(_external+'/butterfly.mp4').openWrite());
 
                         Navigator.pushNamed(context, '/VideoPlayerSample',arguments: ScreenArguments(
-                          _tempPath+'/butterfly.mp4',
+                          _external+'/butterfly.mp4',
                           'B1',
                         ));
 
                       });
+
+                      */
 
 
 

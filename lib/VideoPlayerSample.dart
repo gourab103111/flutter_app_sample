@@ -8,6 +8,7 @@ import 'package:simple_permissions/simple_permissions.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_app/ScreenArguments.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class VideoPlayerSample extends StatefulWidget {
   @override
@@ -22,11 +23,17 @@ class _VideoPlayerSampleState extends State<VideoPlayerSample> {
   VideoPlayerController _controller;
   Future<void> _initializeVideoPlayerFuture;
 
+  FutureBuilder _varFutureBuilder ;
+
+
+
   String _platformVersion = 'Unknown';
   Permission permission;
   String _tempPath    ='';
   String  _appDocPath ='';
   String video_path  = '';
+
+
 
 
   initPlatformState() async {
@@ -59,9 +66,71 @@ class _VideoPlayerSampleState extends State<VideoPlayerSample> {
 
 
 
+  loadsharedPreference() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("video_path", "/storage/emulated/0/vid3.mp4");
+    video_path =  prefs.getString("video_path");
+
+
+
+    print(video_path);
+
+
+    /*
+    setState(() {
+
+      print(" Value for video file is changed ");
+
+
+      _controller = VideoPlayerController.file(
+        File('/storage/emulated/0/vid3.mp4'),
+      );
+
+      // Initielize the controller and store the Future for later use.
+      _initializeVideoPlayerFuture = _controller.initialize();
+
+      // Use the controller to loop the video.
+      _controller.setLooping(true);
+
+
+
+
+    });
+
+    */
+
+
+   // initcontrollers();
+  }
+
+  @protected
+  Future<bool> loadWidget(BuildContext context, bool isInit) async {
+
+   // final ScreenArguments args = ModalRoute.of(context).settings.arguments;
+   // print(args.title);
+
+    _controller = VideoPlayerController.file(
+      File('/storage/emulated/0/vid3.mp4'),
+    );
+
+    // Initielize the controller and store the Future for later use.
+    _initializeVideoPlayerFuture = _controller.initialize();
+
+    // Use the controller to loop the video.
+    _controller.setLooping(true);
+
+    print(video_path);
+
+    return true;
+  }
+
 
   @override
   void initState() {
+
+
+
+    super.initState();
     // Create and store the VideoPlayerController. The VideoPlayerController
     // offers several different constructors to play videos from assets, files,
     // or the internet.
@@ -69,10 +138,10 @@ class _VideoPlayerSampleState extends State<VideoPlayerSample> {
 
 
 
-    /*
-    final ScreenArguments args = ModalRoute.of(context).settings.arguments;
+/*
+
     _controller = VideoPlayerController.file(
-     File(args.title),
+     File('/storage/emulated/0/vid3.mp4'),
     );
 
     // Initielize the controller and store the Future for later use.
@@ -82,16 +151,62 @@ class _VideoPlayerSampleState extends State<VideoPlayerSample> {
     _controller.setLooping(true);
 
     */
+  //  loadsharedPreference();
 
-    super.initState();
+
+
+
+
+   // initcontrollers();
+
+    _varFutureBuilder =  FutureBuilder(
+        future: loadWidget(context, true),
+        builder: (context, snapshot) {
+
+          return AspectRatio(
+            aspectRatio: _controller.value.aspectRatio,
+            // Use the VideoPlayer widget to display the video.
+            child: VideoPlayer(_controller),
+          );
+
+
+        }
+
+    );
+
+
+
+
+
   }
 
   void initcontrollers() {
 
-    final ScreenArguments args = ModalRoute.of(context).settings.arguments;
 
+
+    print("initcontrollers");
+
+    /*
+
+    new Future.delayed(Duration.zero,() {
+
+       ScreenArguments args = ModalRoute.of(context).settings.arguments;
+
+      print(args.title);
+
+       setState(() {
+         video_path = args.title;
+       });
+
+    });
+    */
+
+  //  print(video_path);
+
+
+    /*
     _controller = VideoPlayerController.file(
-      File(args.title),
+      File('/storage/emulated/0/vid2.mp4'),
     );
 
     // Initielize the controller and store the Future for later use.
@@ -99,6 +214,8 @@ class _VideoPlayerSampleState extends State<VideoPlayerSample> {
 
     // Use the controller to loop the video.
     _controller.setLooping(true);
+
+    */
 
   }
 
@@ -115,7 +232,7 @@ class _VideoPlayerSampleState extends State<VideoPlayerSample> {
   @override
   Widget build(BuildContext context) {
 
-    initcontrollers();
+
 
     return Scaffold(
       appBar: AppBar(
@@ -123,24 +240,65 @@ class _VideoPlayerSampleState extends State<VideoPlayerSample> {
       ),
       // Use a FutureBuilder to display a loading spinner while waiting for the
       // VideoPlayerController to finish initializing.
-      body: FutureBuilder(
-        future: _initializeVideoPlayerFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            // If the VideoPlayerController has finished initialization, use
-            // the data it provides to limit the aspect ratio of the video.
-            return AspectRatio(
-              aspectRatio: _controller.value.aspectRatio,
-              // Use the VideoPlayer widget to display the video.
-              child: VideoPlayer(_controller),
-            );
-          } else {
-            // If the VideoPlayerController is still initializing, show a
-            // loading spinner.
-            return Center(child: CircularProgressIndicator());
-          }
-        },
+      body: Column(
+        children: <Widget>[
+          RaisedButton(
+
+            child: Text('Load video'),
+            onPressed: (){
+
+              setState(() {
+
+
+                _controller = VideoPlayerController.file(
+                  File('/storage/emulated/0/vid3.mp4'),
+                );
+
+                // Initielize the controller and store the Future for later use.
+                _initializeVideoPlayerFuture = _controller.initialize();
+
+                // Use the controller to loop the video.
+                _controller.setLooping(true);
+
+                _varFutureBuilder = FutureBuilder(
+                  future: _initializeVideoPlayerFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      // If the VideoPlayerController has finished initialization, use
+                      // the data it provides to limit the aspect ratio of the video.
+                      return AspectRatio(
+                        aspectRatio: _controller.value.aspectRatio,
+                        // Use the VideoPlayer widget to display the video.
+                        child: VideoPlayer(_controller),
+                      );
+                    } else {
+                      // If the VideoPlayerController is still initializing, show a
+                      // loading spinner.
+                      return Center(child: CircularProgressIndicator());
+                    }
+                  },
+                );
+
+
+
+
+              });
+
+
+
+
+            },
+
+          ),
+
+          _varFutureBuilder,
+
+
+
+        ],
+
       ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // Wrap the play or pause in a call to `setState`. This ensures the
@@ -159,7 +317,9 @@ class _VideoPlayerSampleState extends State<VideoPlayerSample> {
         child: Icon(
           _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
         ),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
+
+        // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 
